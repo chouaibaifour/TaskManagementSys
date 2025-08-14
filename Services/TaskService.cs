@@ -1,5 +1,4 @@
-﻿using Domain.DTOs;
-using Services.Interfaces;
+﻿using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Repositories.Interfaces;
 using Domain.Entities;
+using Domain.DTOs.Task;
 namespace Services
 {
     public class TaskService : ITaskService

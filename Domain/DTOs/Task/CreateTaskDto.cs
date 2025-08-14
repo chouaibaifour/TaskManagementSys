@@ -4,14 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.DTOs
+namespace Domain.DTOs.Task
 {
-    public class ResponseTaskDto
+    public class CreateTaskDto
     {
-        public int Id { get;  set; }
-        public string Title { get; set; }
+        public string Title { get;  set; }
         public string Description { get; set; }
         public DateTime DueDate { get; set; }
-        public bool IsCompleted { get; set; }
     }
 }

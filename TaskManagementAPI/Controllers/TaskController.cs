@@ -1,4 +1,4 @@
-﻿using Domain.DTOs;
+﻿using Domain.DTOs.Task;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
