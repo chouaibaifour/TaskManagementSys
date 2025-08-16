@@ -36,5 +36,7 @@ namespace Domain.Entities
             UpdatedAt = user.UpdatedAt;
         }
 
+        
+
     }
 }

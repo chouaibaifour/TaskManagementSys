@@ -170,17 +170,7 @@ namespace Repositories
             {
                 int index = FindUserIndex(users, user.Id ?? -1);
 
-                if(!string.IsNullOrEmpty(user.Username))
-                users[index].Username = user.Username;
-
-                if (!string.IsNullOrEmpty(user.Email))
-                    users[index].Email = user.Email;
-
-                if (!string.IsNullOrEmpty(user.PasswordHash))
-                    users[index].PasswordHash = user.PasswordHash;
-
-                if (user.UpdatedAt.HasValue)
-                    users[index].UpdatedAt = user.UpdatedAt;
+                users[index] = user;
 
                 return index;
             }

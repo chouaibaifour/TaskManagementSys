@@ -56,8 +56,9 @@ namespace Services
         public async Task<ResponseUserDto> UpdateUserAsync( UpdateUserDto dto)
         {
 
+            UserModel user = await _repository.GetByIdAsync(dto.Id);
 
-            var updatedUser = await _repository.UpdateAsync(dto.toModel());
+            var updatedUser = await _repository.UpdateAsync(user.Update(dto));
 
 
                 return updatedUser.toResponseDto();

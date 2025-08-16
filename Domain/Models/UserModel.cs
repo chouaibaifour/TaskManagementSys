@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.DTOs.ObjectValues;
+﻿using Domain.DTOs.ObjectValues;
 using Domain.DTOs.User;
 using Domain.Entities;
 namespace Domain.Models
@@ -11,52 +6,117 @@ namespace Domain.Models
     public class UserModel
     {
         public int? Id { get; set; }
-        public string? Username { get; set; }
-        public string? PasswordHash { get; set; }
-        public string? Email { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        private string? _Username { get; set; }
+        private string? _PasswordHash { get; set; }
+        private string? _Email { get; set; }
+        private DateTime? _CreatedAt { get; set; }
+        private DateTime? _UpdatedAt { get; set; }
         private enObjState _state = enObjState.added;
-        public UserModel()
+
+        private void ValidateToCreate(string? attribute)
         {
-            Id = null;
-            Username = null;
-            PasswordHash = null;
-            Email = null;
-            CreatedAt = null;
-            UpdatedAt = null;
-            _state = enObjState.added;
+            if (_state == enObjState.added)
+                throw new ArgumentNullException
+                    ( $" {attribute} cannot be null or empty.");
+        }
+
+        public string? Username
+        {
+            get => _Username;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                    
+                _Username = value;
+                ValidateToCreate(nameof(Username));
+            }
+        }
+        public string? Email
+        {
+            get => _Email;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+
+                    _Email = value;
+                ValidateToCreate(nameof(Email));
+            }
+        }
+        public string? PasswordHash
+        {
+            get => _PasswordHash;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+
+                    _PasswordHash = value;
+                ValidateToCreate(nameof(PasswordHash));
+            }
+        }
+        public DateTime? CreatedAt
+        {
+            get => _CreatedAt;
+            set
+            {
+                if (null!=value)
+
+                    _CreatedAt = value;
+                ValidateToCreate(nameof(CreatedAt));
+            }
+        }
+        public DateTime? UpdatedAt
+        {
+            get => _UpdatedAt;
+            set
+            {
+                if (null != value)
+                    _UpdatedAt = value;
+                ValidateToCreate(nameof(UpdatedAt));
+            }
+        }
+
+        private UserModel(int? id, string? username, string? passwordHash, string? email, DateTime? createdAt, DateTime? updatedAt, enObjState state)
+        {
+            Id = id;
+            Username = username;
+            PasswordHash = passwordHash;
+            Email = email;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            _state = state;
+            
         }
 
         public UserModel(CreateUserDto dto)
         {
             Id = null;
-            Username = dto.Username;
-            PasswordHash = dto.PasswordHash;
-            Email = dto.Email;
-            CreatedAt = DateTime.Now;
-            UpdatedAt = null;
+            _Username = dto.Username;
+            _PasswordHash = HashPassword(dto.Password); 
+            _Email = dto.Email;
+            _CreatedAt = DateTime.Now;
+            _UpdatedAt = null;
             _state = enObjState.added;
         }
 
         public UserModel(UpdateUserDto dto)
         {
+            _state = enObjState.updated;
             Id = dto.Id;
             Username = dto.Username;
             PasswordHash = HashPassword(dto.Password);
             Email = dto.Email;
             UpdatedAt = DateTime.Now;
-            _state = enObjState.updated;
+            
         }
 
         public UserModel(UserEntity entity)
         {
             Id = entity.Id;
-            Username = entity.Username;
-            PasswordHash = entity.PasswordHash;
-            Email = entity.Email;
-            CreatedAt = entity.CreatedAt;
-            UpdatedAt = entity.UpdatedAt;
+            _Username = entity.Username;
+            _PasswordHash = entity.PasswordHash;
+            _Email = entity.Email;
+            _CreatedAt = entity.CreatedAt;
+            _UpdatedAt = entity.UpdatedAt;
             _state = enObjState.updated;
         }
 
@@ -65,16 +125,15 @@ namespace Domain.Models
             return password;
         }
 
-        public void update( string? username, string? passwordHash, string? email )
+        public UserModel Update(UpdateUserDto dto)
         {
-
-            Username = username;
-            PasswordHash = passwordHash;
-            Email = email;
-            UpdatedAt = DateTime.Now;
             _state = enObjState.updated;
+            Id = dto.Id;
+            Username = dto.Username;
+            PasswordHash = HashPassword(dto.Password);
+            Email = dto.Email;
+            UpdatedAt = DateTime.Now;
+            return this;
         }
-
-        
     }
 }
