@@ -14,109 +14,179 @@ namespace Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly string _jsonFilePath = "Data\\users.json";
+        private readonly string _jsonFilePath = "Data\\_users.json";
+       
+
+        public UserRepository()
+        {
+           
+        }
+
+        private bool FileExists()
+        {
+            return File.Exists(_jsonFilePath);
+        }
+
+        private async Task< List<UserEntity> > LoadUsersAsync()
+        {
+            if (FileExists())
+            {
+                return await Deserialize();
+            }
+               
+            return new List<UserEntity>();
+
+        }
+         
+        private async  Task<string>  ReadUsersFileContent()
+        {
+            var FileContent = await File.ReadAllTextAsync(_jsonFilePath);
+
+            return IsContentEmpty(FileContent) ? "[]": FileContent;
+        }
+
+        private bool IsContentEmpty(string content)
+        {
+            return string.IsNullOrEmpty(content) || content.Trim() == "[]";
+        }
+
+        private async Task<List<UserEntity>>Deserialize()
+        {
+            var FileContent = await ReadUsersFileContent();
+            return JsonSerializer.Deserialize<List<UserEntity>>(FileContent) ?? new List<UserEntity>();
+
+        }
+
+        private  void SaveChanges(List<UserEntity>users)
+        {
+            File.WriteAllText(_jsonFilePath, JsonSerializer.Serialize(users));
+            
+        }
+
+        private  UserEntity AddNewUser( List<UserEntity> users, UserEntity user)
+        {
+            if (users == null)
+                throw new ArgumentNullException(nameof(users));
+
+            user.Id = users.Count > 0 ? users.Max(t => t.Id) + 1 : 1;
+           
+
+            users.Add(user);
+            
+            return user; 
+        }
 
         public async Task<UserModel> CreateAsync(UserModel user)
         {
-            
-            var usersJSON = await File.ReadAllTextAsync(_jsonFilePath);
-            if (string.IsNullOrEmpty(usersJSON))
-            {
-                usersJSON = "[]"; // Initialize with an empty array if the file is empty
-            }
-            UserEntity? userEntity = user.toEntity();
-            
-            var users = JsonSerializer.Deserialize<List<UserEntity>>(usersJSON);
+            var users = await LoadUsersAsync();
 
-            userEntity.Id = users?.Count > 0 ? users.Max(t => t.Id) + 1 : 1;
-            userEntity.CreatedAt = DateTime.Now;
+            var userEntity = AddNewUser(users,user.toEntity());
 
-            users?.Add(userEntity);
-            var updatedUsersJSON = JsonSerializer.Serialize(users);
-            await File.WriteAllTextAsync(_jsonFilePath, updatedUsersJSON);
+            SaveChanges(users);
+
             return userEntity.toModel();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        private bool DeleteUser(List<UserEntity> users, int id)
         {
-            var usersJSON = await File.ReadAllTextAsync(_jsonFilePath);
-            if (string.IsNullOrEmpty(usersJSON))
-            {
-                usersJSON = "[]"; // Initialize with an empty array if the file is empty
-            }
-
-
-            var users = JsonSerializer.Deserialize<List<UserEntity>>(usersJSON);
-            if(users is null || !users.Any())
-            {
-                throw new KeyNotFoundException($"User with ID {id} not found.");
-            }
-            UserEntity OldUser = users.FirstOrDefault(u => u.Id == id)!;
-            if (OldUser is null) throw new KeyNotFoundException($"User with ID {id} not found.");
-           return users.Remove(OldUser);
-        }
-
-        public  async Task<IEnumerable<UserModel>> GetAllAsync()
-        {
-            var usersJSON = await File.ReadAllTextAsync(_jsonFilePath);
-            if (string.IsNullOrEmpty(usersJSON))
-            {
-                usersJSON = "[]"; // Initialize with an empty array if the file is empty
-            }
-
-
-            var users = JsonSerializer.Deserialize<List<UserEntity>>(usersJSON);
-            if (users is null || !users.Any())
-            {
-                throw new KeyNotFoundException($"no Users found.");
-            }
             
-            return users.Select(u => u.toModel()).ToList();
+            UserEntity OldUser = users.FirstOrDefault(u => u.Id == id)!;
+
+            if (!NullUser(OldUser)) return users.Remove(OldUser);
+
+            throw new KeyNotFoundException($"User with ID {id} not found.");
+        }
+        private bool NullUser(UserEntity user)
+        {
+            return user is null;
+        }
+        public async Task< bool >DeleteAsync(int id)
+        {
+            var users = await LoadUsersAsync();
+            if (!EmptyOrNullUsersList(users))
+            {
+                bool Removed = DeleteUser(users, id);
+                SaveChanges(users);
+            return Removed;
+            }
+            throw new KeyNotFoundException($"no users found.");
+
         }
 
+        public async Task<IEnumerable<UserModel>> GetAllAsync()
+        {
+            var users = await LoadUsersAsync();
+
+            if (!EmptyOrNullUsersList(users))
+            {
+                return users.Select(u => u.toModel());
+            }
+            throw new KeyNotFoundException($"no users found.");
+            
+        }
+        private UserEntity GetUserById(List<UserEntity> users, int id)
+        {
+            
+            return users.FirstOrDefault(u => u.Id == id)!;
+        }
+
+        private bool EmptyOrNullUsersList(List<UserEntity> users)
+        {
+            return users is null || !users.Any();
+        }
         public async Task<UserModel> GetByIdAsync(int id)
         {
-            var usersJSON = await File.ReadAllTextAsync(_jsonFilePath);
-            if (string.IsNullOrEmpty(usersJSON))
+
+            var users = await LoadUsersAsync();
+            UserEntity userEntity;
+
+            if (!EmptyOrNullUsersList( users))
             {
-                usersJSON = "[]"; // Initialize with an empty array if the file is empty
-            }
-            
-
-            var users = JsonSerializer.Deserialize<List<UserEntity>>(usersJSON);
-
-            UserEntity userEntity = users?.FirstOrDefault(u => u.Id == id)!; 
-
-            if (userEntity == null)
-            {
+                 userEntity = GetUserById(users, id);
+                if(!NullUser(userEntity))
+                    return userEntity.toModel();
                 throw new KeyNotFoundException($"User with ID {id} not found.");
             }
-            return userEntity.toModel();
+
+            throw new KeyNotFoundException($"No Users Found.");
+            
+        }
+        private int FindUserIndex(List<UserEntity> users, int id)
+        {
+            if(-1 == id)
+                throw new ArgumentException("Invalid user ID.");
+
+            int index = users.FindIndex(u => u.Id == id)!;
+            if (!NullUser(users[index]))
+              return index;
+                throw new KeyNotFoundException($"User with ID {id} not found.");
+
+
+          
+        }
+
+        private int UpdateUser(List<UserEntity> users, UserEntity user)
+        {
+            if (!EmptyOrNullUsersList(users))
+            {
+                int index = FindUserIndex(users, user.Id ?? -1);
+
+
+                users[index] = user;
+                return index;
+            }
+                throw new KeyNotFoundException($"no users found.");
+            
         }
 
         public async Task<UserModel> UpdateAsync(UserModel user)
         {
-            var usersJSON = await File.ReadAllTextAsync(_jsonFilePath);
-            if (string.IsNullOrEmpty(usersJSON))
-            {
-                usersJSON = "[]"; // Initialize with an empty array if the file is empty
-            }
-           
+            var users = await LoadUsersAsync();
 
-            var users = JsonSerializer.Deserialize<List<UserEntity>>(usersJSON);
+            int index = UpdateUser(users, user.toEntity());
 
-            UserEntity OldUser = users?.FirstOrDefault(u => u.Id == user.Id)!;
-            if (OldUser is null) throw new KeyNotFoundException($"User with ID {user.Id} not found.");
-            users?.Remove(OldUser);
-            UserEntity userEntity = user.toEntity();
-            userEntity.UpdatedAt = DateTime.Now;
-            userEntity.Id = OldUser.Id;
-            users?.Add(userEntity);
-
-
-            var updatedUsersJSON = JsonSerializer.Serialize(users);
-            await File.WriteAllTextAsync(_jsonFilePath, updatedUsersJSON);
-            return userEntity.toModel();
+            SaveChanges(users);
+            return users[index].toModel();
         }
     }
 }

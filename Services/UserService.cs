@@ -16,60 +16,56 @@ namespace Services
 
         public UserService(IUserRepository repository) => _repository = repository;
 
-        public Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto)
-        {
-           UserModel user = dto.toModel();
-            Task<UserModel>CreatedUser =  _repository.CreateAsync(user);
 
-            if (!HasSuccessCreation(CreatedUser))
-            {
-                throw new Exception("User creation failed");
-            }
-            return Task.FromResult(CreatedUser.Result.toResponseDto());
+        private bool NullUser(UserModel createdUser)
+        {
+            return (createdUser == null);
+        }
+
+        public async Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto)
+        {
+            UserModel user = dto.toModel();
+
+            var CreatedUser = await _repository.CreateAsync(user);
+
+            NullUser(CreatedUser);
+
+            return CreatedUser.toResponseDto();
 
         }
 
-        private  bool HasSuccessCreation( Task<UserModel> createdUser)
+        public async Task<bool> DeleteUserAsync(int id)
         {
-            return createdUser.Result != null;
+            return await _repository.DeleteAsync(id);
         }
 
-        public Task<bool> DeleteUserAsync(int id)
+        public async Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync()
         {
-            return Task.FromResult( _repository.DeleteAsync(id).Result);
+            var users = await _repository.GetAllAsync();
+
+            return users.Select(u => u.toResponseDto());
         }
 
-        public Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync()
+        public async Task<ResponseUserDto> GetUserByIdAsync(int id)
         {
-            return Task.FromResult(_repository.GetAllAsync().Result.Select(u => u.toResponseDto()));
+            UserModel user = await _repository.GetByIdAsync(id);
+
+            return user.toResponseDto();
         }
 
-        public Task<ResponseUserDto> GetUserByIdAsync(int id)
-        {
-            UserModel user = _repository.GetByIdAsync(id).Result;
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-            return Task.FromResult(user.toResponseDto());
-        }
-
-        public Task<ResponseUserDto> UpdateUserAsync(int id, UpdateUserDto dto)
+        public async Task<ResponseUserDto> UpdateUserAsync(int id, UpdateUserDto dto)
         {
 
-            UserModel existingUser = _repository.GetByIdAsync(id).Result;
-            if (existingUser == null)
-            {
-                throw new Exception("User not found");
-            }
-            existingUser.update(dto.Username, dto.PasswordHash, dto.Email);
-            Task<UserModel> updatedUser = _repository.UpdateAsync(existingUser);
-             // Ensure the ID is set correctly for the update
-            if (updatedUser.Result == null)
-            {
-                throw new Exception("User update failed");
-            }
-            return Task.FromResult(updatedUser.Result.toResponseDto());
+
+            var updatedUser = await _repository.UpdateAsync(dto.toModel());
+
+
+                return updatedUser.toResponseDto();
+
+           
+
+
         }
+
     }
 }

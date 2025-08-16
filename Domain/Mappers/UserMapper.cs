@@ -16,14 +16,14 @@ namespace Domain.Mappers
             user.Username = dto.Username;
             user.PasswordHash = dto.PasswordHash;
             user.Email = dto.Email;
-
+            user.CreatedAt = DateTime.Now;
             return user;
         }
 
         public static UserModel toModel(this UpdateUserDto dto)
         {
             UserModel user = new UserModel();
-            user.update(dto.Username, dto.PasswordHash, dto.Email);
+            user.update(dto.Username, dto.Password, dto.Email);
             return user;
         }
         public static ResponseUserDto toResponseDto(this UserModel model)

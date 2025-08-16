@@ -21,7 +21,7 @@ namespace Domain.Models
             Username = null;
             PasswordHash = null;
             Email = null;
-            CreatedAt = DateTime.Now;
+            CreatedAt = null;
             UpdatedAt = null;
             _state = enObjState.added;
         }
@@ -31,7 +31,10 @@ namespace Domain.Models
             Username = username;
             PasswordHash = passwordHash;
             Email = email;
+            UpdatedAt = DateTime.Now;
             _state = enObjState.updated;
         }
+
+        
     }
 }
