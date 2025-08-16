@@ -24,9 +24,9 @@ namespace Services
 
         public async Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto)
         {
-            UserModel user = dto.toModel();
+          
 
-            var CreatedUser = await _repository.CreateAsync(user);
+            var CreatedUser = await _repository.CreateAsync(dto.ToModel());
 
             NullUser(CreatedUser);
 

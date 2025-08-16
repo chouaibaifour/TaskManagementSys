@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Repositories.Interfaces;
 using Domain.Entities;
 using Domain.DTOs.Task;
+using Domain.Models;
+using Domain.Mappers;
 namespace Services
 {
     public class TaskService : ITaskService
@@ -14,26 +16,16 @@ namespace Services
         private readonly ITaskRepository _repository;
         public TaskService(ITaskRepository repository) => _repository = repository;
 
-        public Task<ResponseTaskDto> CreateTaskAsync(CreateTaskDto dto)
+        private bool NullTask(TaskModel createdTask)
         {
-            TaskEntity ToCreateTask = new TaskEntity(dto.Title, dto.Description, dto.DueDate, false);
-            
-           Task<TaskEntity>? createdTask = _repository.AddAsync(ToCreateTask)!;
-            if (createdTask != null)
-            {
-                return Task.FromResult(new ResponseTaskDto
-                {
-                    Id = createdTask.Result.Id,
-                    Title = createdTask.Result.Title!,
-                    Description = createdTask.Result.Description!,
-                    DueDate = createdTask.Result.DueDate,
-                    IsCompleted = createdTask.Result.IsCompleted
-                });
-            }
-            else
-            {
-                throw new Exception("Failed to create task");
-            }
+            return (createdTask == null);
+        }
+
+        public async Task<ResponseTaskDto> CreateTaskAsync(CreateTaskDto dto)
+        {
+            var CreatedTask = await _repository.CreateAsync( dto.ToModel());
+
+            return NullTask(CreatedTask) ? null : CreatedTask.ToResponseDto();
         }
 
         public Task<bool> DeleteTaskAsync(int id)

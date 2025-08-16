@@ -10,20 +10,18 @@ namespace Domain.Mappers
     public static class TaskMapper
     {
 
-        public static TaskModel ToCreateDto(this CreateTaskDto dto)
+        public static TaskModel ToModel(this CreateTaskDto dto)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "CreateTaskDto cannot be null");
-            }
-            return new TaskModel
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                DueDate = dto.DueDate
-            };
+            return new TaskModel(dto);
+            
+            
         }
 
-      
+        public static ResponseTaskDto ToResponseDto(this TaskModel model)
+        {
+            return new ResponseTaskDto(model);
+            
+        }
+
     }
 }

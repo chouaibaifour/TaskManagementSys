@@ -10,7 +10,7 @@ namespace Domain.Mappers
 {
     public static class UserMapper
     {
-        public static UserModel toModel(this CreateUserDto dto)
+        public static UserModel ToModel(this CreateUserDto dto)
         {
             UserModel user = new UserModel(dto);
             return user;

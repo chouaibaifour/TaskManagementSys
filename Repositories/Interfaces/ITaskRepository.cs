@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Repositories.Interfaces
 {
     public interface ITaskRepository
     {
-        Task<TaskEntity?> AddAsync(TaskEntity task);
-        Task<TaskEntity?> UpdateAsync(TaskEntity task);
+        Task<TaskModel> CreateAsync(TaskModel task);
+        Task<TaskModel> UpdateAsync(TaskModel task);
         Task<bool> DeleteAsync(int id);
-        Task<TaskEntity?> GetByIdAsync(int id);
-        Task<IEnumerable<TaskEntity>?> GetAllAsync();
+        Task<TaskModel> GetByIdAsync(int id);
+        Task<IEnumerable<TaskModel>> GetAllAsync();
     }
 }
