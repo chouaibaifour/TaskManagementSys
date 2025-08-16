@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,16 @@ namespace Domain.DTOs.User
             PasswordHash = null;
             CreatedAt =null;
             UpdatedAt = null;
+        }
+
+        public ResponseUserDto(UserModel model)
+        {
+            Id = model.Id;
+            Username = model.Username;
+            Email = model.Email;
+            PasswordHash = model.PasswordHash;
+            CreatedAt = model.CreatedAt;
+            UpdatedAt = model.UpdatedAt;
         }
     }
 }

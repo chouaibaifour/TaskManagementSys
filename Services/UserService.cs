@@ -53,7 +53,7 @@ namespace Services
             return user.toResponseDto();
         }
 
-        public async Task<ResponseUserDto> UpdateUserAsync(int id, UpdateUserDto dto)
+        public async Task<ResponseUserDto> UpdateUserAsync( UpdateUserDto dto)
         {
 
 

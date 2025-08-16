@@ -12,52 +12,33 @@ namespace Domain.Mappers
     {
         public static UserModel toModel(this CreateUserDto dto)
         {
-            UserModel user = new UserModel();
-            user.Username = dto.Username;
-            user.PasswordHash = dto.PasswordHash;
-            user.Email = dto.Email;
-            user.CreatedAt = DateTime.Now;
+            UserModel user = new UserModel(dto);
             return user;
         }
 
         public static UserModel toModel(this UpdateUserDto dto)
         {
-            UserModel user = new UserModel();
-            user.update(dto.Username, dto.Password, dto.Email);
+            UserModel user = new UserModel(dto);
+            
             return user;
         }
         public static ResponseUserDto toResponseDto(this UserModel model)
         {
-            ResponseUserDto dto = new ResponseUserDto();
-            dto.Id = model.Id;
-            dto.Username = model.Username;
-            dto.Email = model.Email;
-            dto.CreatedAt = model.CreatedAt;
-            dto.UpdatedAt = model.UpdatedAt;
+            ResponseUserDto dto = new ResponseUserDto(model);
+            
             return dto;
         }
         public static UserModel toModel(this UserEntity entity)
         {
            
-            UserModel user = new UserModel();
-            // use update method in the usermodel
-            user.Id = entity.Id;
-            user.Username = entity.Username;
-            user.PasswordHash = entity.PasswordHash;
-            user.Email = entity.Email;
-            user.CreatedAt = entity.CreatedAt;
-            user.UpdatedAt = entity.UpdatedAt;
+            UserModel user = new UserModel(entity);
+            
             return user;
         }
         public static UserEntity toEntity(this UserModel model)
         {
-            UserEntity entity = new UserEntity();
-            entity.Id = model.Id;
-            entity.Username = model.Username;
-            entity.PasswordHash = model.PasswordHash;
-            entity.Email = model.Email;
-            entity.CreatedAt = model.CreatedAt;
-            entity.UpdatedAt = model.UpdatedAt;
+            UserEntity entity = new UserEntity(model);
+            
             return entity;
         }
     }

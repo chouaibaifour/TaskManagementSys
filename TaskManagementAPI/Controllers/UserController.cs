@@ -17,10 +17,10 @@ namespace TaskManagementAPI.Controllers
             return CreatedAtAction(nameof(CreateUser), new { id = result.Id }, result);
         }
 
-        [HttpPut("users/{id}")]
-        public async Task<IActionResult> UpdateUser(int id, UpdateUserDto dto)
+        [HttpPut("users/")]
+        public async Task<IActionResult> UpdateUser( UpdateUserDto dto)
         {
-            var result = await _service.UpdateUserAsync(id, dto);
+            var result = await _service.UpdateUserAsync( dto);
             return result == null ? NotFound() : Ok(result);
         }
 

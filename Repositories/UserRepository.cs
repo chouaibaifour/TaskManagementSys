@@ -153,8 +153,7 @@ namespace Repositories
         }
         private int FindUserIndex(List<UserEntity> users, int id)
         {
-            if(-1 == id)
-                throw new ArgumentException("Invalid user ID.");
+           
 
             int index = users.FindIndex(u => u.Id == id)!;
             if (!NullUser(users[index]))
@@ -171,13 +170,25 @@ namespace Repositories
             {
                 int index = FindUserIndex(users, user.Id ?? -1);
 
+                if(!string.IsNullOrEmpty(user.Username))
+                users[index].Username = user.Username;
 
-                users[index] = user;
+                if (!string.IsNullOrEmpty(user.Email))
+                    users[index].Email = user.Email;
+
+                if (!string.IsNullOrEmpty(user.PasswordHash))
+                    users[index].PasswordHash = user.PasswordHash;
+
+                if (user.UpdatedAt.HasValue)
+                    users[index].UpdatedAt = user.UpdatedAt;
+
                 return index;
             }
                 throw new KeyNotFoundException($"no users found.");
             
         }
+
+        
 
         public async Task<UserModel> UpdateAsync(UserModel user)
         {
