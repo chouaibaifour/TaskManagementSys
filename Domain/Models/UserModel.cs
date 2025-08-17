@@ -120,6 +120,10 @@ namespace Domain.Models
             _state = enObjState.updated;
         }
 
+        public UserModel()
+        {
+        }
+
         private string? HashPassword(string? password)
         {
             return password;

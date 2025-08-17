@@ -1,5 +1,6 @@
 ﻿using Domain.DTOs.ObjectValues;
 using Domain.DTOs.Task;
+using Domain.Entities;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -18,19 +19,17 @@ namespace Domain.Models
         private enStatus _Status { get; set; } 
         private enPriority _Priority { get; set; } 
         private DateTime _DueDate { get; set; }
-        private UserModel _CreatedBy { get; set; }
+
+        private UserModel? _CreatedBy { get; set; }
         private UserModel? _AssignedTo { get; set; }
-        private ProjectModel _Project { get; set; }
+        private ProjectModel? _Project { get; set; }
+
         private DateTime _CreatedAt { get; set; }
         private DateTime? _UpdatedAt { get; set; }
+
         private enObjState _state = enObjState.added;
 
-        private void ValidateToCreate(string? attribute)
-        {
-            if (_state == enObjState.added)
-                throw new ArgumentNullException
-                    ($"{attribute} cannot be null or empty.");
-        }
+        
         public string Title
         {
             get => _Title;
@@ -39,7 +38,7 @@ namespace Domain.Models
                 if (!string.IsNullOrEmpty(value))
                 {
                     _Title = value;
-                    ValidateToCreate(nameof(Title));
+                   
                 }
             }
         }
@@ -51,27 +50,57 @@ namespace Domain.Models
                 if (!string.IsNullOrEmpty(value))
                 {
                     _Description = value;
-                    ValidateToCreate(nameof(Description));
+                   
                 }
             }
         }
 
-        public enStatus Status
+        public string Status
         {
-            get => _Status;
+            get => _Status  switch
+            {
+                enStatus.Pending => "Pending",
+                enStatus.Cancelled => "Cancelled",
+                enStatus.Completed => "Completed",
+                _ => throw new ArgumentException("Invalid status value")
+            };
+
             set
             {
-                _Status = value;
-                ValidateToCreate(nameof(Status));
+                _Status = value.ToLower()  switch
+                {
+                    "pending" => enStatus.Pending,
+                    "cancelled" => enStatus.Cancelled,
+                    "completed" => enStatus.Completed,
+                    _ => throw new ArgumentException("Invalid status value")
+                };
+                
             }
         }
-        public enPriority Priority
+        public string Priority
         {
-            get => _Priority;
+            get => _Priority switch
+            {
+                enPriority.Low => "Low",
+                enPriority.Medium => "Medium",
+                enPriority.High => "High",
+                enPriority.Critical => "Critical",
+
+                _ => throw new ArgumentException("Invalid Priority value")
+            };
             set
             {
-                _Priority = value;
-                ValidateToCreate(nameof(Priority));
+                _Priority = value.ToLower() switch
+                {
+                    "low" => enPriority.Low,
+                    "medium" => enPriority.Medium,
+                    "high" => enPriority.High,
+                    "critical" => enPriority.Critical,
+                    _ => throw new ArgumentException("Invalid Priority value")
+
+
+                };
+               
             }
         }
         public DateTime DueDate
@@ -81,17 +110,17 @@ namespace Domain.Models
             {
                 if (value != default(DateTime))
                     _DueDate = value;
-                ValidateToCreate(nameof(DueDate));
+               
             }
         }
-        public UserModel CreatedBy
+        public UserModel? CreatedBy
         {
             get => _CreatedBy;
             set
             {
                 _CreatedBy = value ??
                     throw new ArgumentNullException(nameof(CreatedBy), "CreatedBy cannot be null.");
-                ValidateToCreate(nameof(CreatedBy));
+                
             }
         }
 
@@ -101,18 +130,18 @@ namespace Domain.Models
             set
             {
                 _AssignedTo = value;
-                ValidateToCreate(nameof(AssignedTo));
+               
             }
         }
 
-        public ProjectModel Project
+        public ProjectModel? Project
         {
             get => _Project;
             set
             {
                 _Project = value ?? 
                     throw new ArgumentNullException(nameof(Project), "Project cannot be null.");
-                ValidateToCreate(nameof(Project));
+                
             }
         }
 
@@ -122,7 +151,7 @@ namespace Domain.Models
             set
             {
                 _CreatedAt = value != default(DateTime) ? value : DateTime.Now;
-                ValidateToCreate(nameof(CreatedAt));
+                
             }
         }
 
@@ -132,13 +161,19 @@ namespace Domain.Models
             set
             {
                 _UpdatedAt = value;
-                ValidateToCreate(nameof(UpdatedAt));
+                
             }
         }
 
         public TaskModel(CreateTaskDto dto)
         {
-            
+            _Title = dto.Title;
+            _Description =dto. Description;
+            _Status = enStatus.Pending;
+            Priority = dto.Priority;
+            _DueDate = dto. DueDate;
+            _CreatedAt =DateTime.Now;
+            _state = enObjState.added;
         }
 
         public TaskModel(int id, string title, string description, enStatus status,
@@ -157,6 +192,19 @@ namespace Domain.Models
             _CreatedAt = createdAt;
             _UpdatedAt = updatedAt;
             _state = state;
+        }
+
+        public TaskModel(TaskEntity entity)
+        {
+            Id = entity.Id;
+            _Title = entity.Title;
+            _Description = entity.Description;
+            Status = entity.Status;
+            Priority = entity.Priority;
+            _DueDate = entity.DueDate;
+            _CreatedAt = entity.CreatedAt;
+            _UpdatedAt = entity.UpdatedAt;
+            _state = enObjState.updated;
         }
     }
 }

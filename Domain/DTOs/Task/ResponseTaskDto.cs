@@ -15,22 +15,23 @@ namespace Domain.DTOs.Task
             Id = model.Id ?? 0;
             Title = model.Title;
             Description = model.Description;
-            Status = model.Status.ToString();
-            Priority = model.Priority.ToString();
+            Status = model.Status;
+            Priority = model.Priority;
             DueDate = model.DueDate;
 
-            CreatedById = model.CreatedBy.Id??0;
-            CreatedByUserName = model.CreatedBy.Username;
-            AssignedToId= model.AssignedTo?.Id;
-            AssignedToUserName=model.AssignedTo?.Username;
-            ProjectId = model.Project.Id??0;
-            ProjectName = model.Project.Name;
+            CreatedById = model.CreatedBy?.Id??0;
+            CreatedByUserName = model.CreatedBy?.Username;
+            AssignedToId= model.AssignedTo?.Id??0;
+            AssignedToUserName=model.AssignedTo?.Username??null;
+            ProjectId = model.Project?.Id??0;
+            ProjectName = model.Project?.Name??null;
+
             CreatedAt = model.CreatedAt;
             UpdatedAt = model.UpdatedAt;                         
         }
 
         public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } 
         public string? Description { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }

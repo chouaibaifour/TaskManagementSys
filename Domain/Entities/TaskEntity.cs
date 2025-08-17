@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,18 +10,41 @@ namespace Domain.Entities
     public class TaskEntity
     {
         public int Id { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; }    
+        public string Priority { get; set; } 
         public DateTime DueDate { get; set; }
 
-        public bool IsCompleted { get; set; }
-        public TaskEntity(string? title, string? description, DateTime dueDate, bool isCompleted)
+        // Foreign Keys
+        public int CreatedById { get; set; }
+        public int? AssignedToId { get; set; }
+        public int ProjectId { get; set; }
+
+        // Audit fields
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+       
+
+        public TaskEntity()
         {
-            Title = title;
-            Description = description;
-            DueDate = dueDate;
-            IsCompleted = isCompleted;
+           
         }
 
+        public TaskEntity(TaskModel model)
+        {
+            Id = model.Id ?? 0;
+            Title = model.Title;
+            Description = model.Description;
+            Status = model.Status;
+            Priority = model.Priority;
+            DueDate = model.DueDate;
+            CreatedById = model.CreatedBy?.Id ?? 0;
+            AssignedToId = model.AssignedTo?.Id??null;
+            ProjectId = model.Project?.Id ?? 0; // will be implemented
+            CreatedAt = model.CreatedAt;
+            UpdatedAt = model.UpdatedAt; // Default to now if null
+        }
     }
 }

@@ -11,13 +11,17 @@ namespace Domain.DTOs.Task
     public class CreateTaskDto
     {
 
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string Priority { get; set; } = "medium";   // default matches DB
-        public DateTime? DueDate { get; set; }
-        public int CreatedBy { get; set; }                 // required: who created it
-        public int? AssignedTo { get; set; }
-        public int ProjectId { get; set; }
+        public required string Title { get; set; }
+        public required string Description { get; set; }
+        public required string Priority { get; set; } 
+        public required DateTime DueDate { get; set; }
+        public required int CreatedById { get; set; }                 
+        public required int ProjectId { get; set; }
 
+        public CreateTaskDto()
+        {
+
+        }
+        
     }
 }

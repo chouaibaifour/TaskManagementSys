@@ -13,19 +13,38 @@ namespace Services
 {
     public class TaskService : ITaskService
     {
-        private readonly ITaskRepository _repository;
-        public TaskService(ITaskRepository repository) => _repository = repository;
+        private readonly ITaskRepository _taskrepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProjectRepository _projectRepository;
+        public TaskService
+            (ITaskRepository repository,IUserRepository userRepository,IProjectRepository projectRepository) { 
+            _taskrepository = repository;
+            _userRepository = userRepository;
+            _projectRepository = projectRepository;
+        }
 
         private bool NullTask(TaskModel createdTask)
         {
             return (createdTask == null);
         }
 
+        private async Task<TaskModel> BuildTaskModelAsync(CreateTaskDto dto)
+        {
+            var CreatedTask = dto.ToModel();
+
+            CreatedTask.CreatedBy = await _userRepository.GetByIdAsync(dto.CreatedById) ??
+                throw new ArgumentNullException(nameof(dto.CreatedById), "CreatedBy cannot be null.");
+            
+                CreatedTask.Project = await _projectRepository.GetByIdAsync(dto.ProjectId) ??
+                null;
+
+            return CreatedTask;
+        }
+
         public async Task<ResponseTaskDto> CreateTaskAsync(CreateTaskDto dto)
         {
-            var CreatedTask = await _repository.CreateAsync( dto.ToModel());
 
-            return NullTask(CreatedTask) ? null : CreatedTask.ToResponseDto();
+            return (await _taskrepository.CreateAsync(await BuildTaskModelAsync(dto))).ToResponseDto();
         }
 
         public Task<bool> DeleteTaskAsync(int id)

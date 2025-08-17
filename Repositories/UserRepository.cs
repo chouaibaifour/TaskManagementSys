@@ -65,13 +65,10 @@ namespace Repositories
 
         private  UserEntity AddNewUser( List<UserEntity> users, UserEntity user)
         {
-            if (users == null)
-                throw new ArgumentNullException(nameof(users));
 
-            user.Id = users.Count > 0 ? users.Max(t => t.Id) + 1 : 1;
-           
-
-            users.Add(user);
+            user.Id = users?.Count > 0 ? users.Max(t => t.Id) + 1 : 1;
+ 
+            users?.Add(user);
             
             return user; 
         }
